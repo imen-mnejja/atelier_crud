@@ -10,13 +10,18 @@ class Student
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
+
     #[ORM\Column]
     private ?int $nsc = null;
 
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    public function getNsc(): ?int
+    #[ORM\ManyToOne(inversedBy: 'students')]
+    #[ORM\JoinColumn(name: "classe_Id", referencedColumnName: "id")]
+    private ?Classroom $classe = null;
+
+    public function getnsc(): ?int
     {
         return $this->nsc;
     }
@@ -29,6 +34,18 @@ class Student
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getClasse(): ?Classroom
+    {
+        return $this->classe;
+    }
+
+    public function setClasse(?Classroom $classe): self
+    {
+        $this->classe = $classe;
 
         return $this;
     }

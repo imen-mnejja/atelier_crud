@@ -2,14 +2,16 @@
 
 namespace App\Controller;
 
+use App\Entity\Classroom;
+use App\Entity\Student;
+use App\Form\StudentType;
+use App\Repository\ClassroomRepository;
+use App\Repository\StudentRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\Persistence\ManagerRegistry ;
-use App\Repository\StudentRepository;
-use App\Entity\Student ;
-use Symfony\Component\HttpFoundation\Request;
-use App\Form\StudentType ;
 
 class StudentController extends AbstractController
 {
@@ -21,56 +23,78 @@ class StudentController extends AbstractController
         ]);
     }
 
-    #[Route('/getstudent', name: 'getstudent')]
-    public function getstudent(StudentRepository $repo): Response
+    #[Route('/student/ajouter', name: 'ajouter_student')]
+    public function Ajouter(ManagerRegistry $mr, Request $req): Response
     {
-        return $this->render('student/liste.html.twig', [
-            'p' => $repo->findAll(),
+        //instance de l'objet 
+        $a = new Student();
+        $form = $this->createForm(StudentType::class, $a);
+        $form->handleRequest($req); // analyser la requette http
+
+        if ($form->isSubmitted()) {
+            //pour l'insertion dans la bd 
+            $em = $mr->getManager(); //necessaire 
+            $em->persist($a); //preparation de la bd 
+            $em->flush(); //l'execution
+            //redirection 
+            return $this->redirectToRoute('afficher_student');
+        }
+
+        /* return $this->render('student/addstudent.html.twig', [
+            'formstudent' => $form->createView()
+        ]);*/
+        //  ou 
+        return $this->renderForm('student/addstudent.html.twig', [
+            'formstudent' => $form
         ]);
     }
-    #[Route('/removesc/{id}', name: 'removesc')]
-    public function removearticle(ManagerRegistry $mr,$id,StudentRepository $repo): Response
-    {   $a=$repo->find($id);
-        $em=$mr->getManager();
+
+    #[Route('/student/afficher', name: 'afficher_student')]
+    public function afficher(StudentRepository $rep, ClassroomRepository $c): Response
+    {
+
+
+        return $this->render('student/getstudent.html.twig', [
+            'students' => $rep->findAll(), 'classes' => $c->findAll()
+        ]);
+        // return $this->render('student/getstudent.html.twig', array('students' => $rep->findAll()));
+    }
+
+    #[Route('/student/supprimer/{nsc}', name: 'supprimer_student')]
+    public function supprimer(ManagerRegistry $mr, $nsc, StudentRepository $rep): Response
+    {
+        $a = $rep->find($nsc);
+        $em = $mr->getManager();
         $em->remove($a);
         $em->flush();
-        return new Response('removed');
+        return $this->redirectToRoute('afficher_student');
     }
-    #[Route('/creates', name: 'creates')]
-    public function creates(ManagerRegistry $mr, Request $req): Response
-    {   
-        $student = new Student();
-        $form = $this->createForm(StudentType::class, $student);
-        $form->handleRequest($req);
+
+    #[Route('/student/modifier{nsc}', name: 'modifier_student')]
+    public function Modifer(ManagerRegistry $mr, $nsc, Request $req): Response
+    {
+        //recuperer le student avec son nsc 
+        $a = $mr->getRepository(Student::class)->find($nsc);
+        $form = $this->createForm(StudentType::class, $a);
+        $form->handleRequest($req); // analyser la requette http
 
         if ($form->isSubmitted()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($student);
-            $entityManager->flush();
 
-            return $this->redirectToRoute('creates');
+            $em = $mr->getManager(); //necessaire 
+            $em->flush(); //l'execution
+            //redirection 
+            return $this->redirectToRoute('afficher_student');
         }
 
-        return $this->render('student/create.html.twig', [
-            'form' => $form->createView()
-        ]);
-
-    }
-    #[Route('/modifys/{id}', name: 'modifys')]
-    public function modifyc(ManagerRegistry $mr, Request $req,$id): Response
-    {  
-        $student=$mr->getRepository(Student::class)->find($id);
-        $form = $this->createForm(StudentType::class, $student);
-        $form->handleRequest($req);
-
-        if ($form->isSubmitted()) {
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('getstudent');
-        }
-
-        return $this->render('student/edit.html.twig', [
-            'form' => $form->createView(),
+        return $this->renderForm('student/addstudent.html.twig', [
+            'formstudent' => $form
         ]);
     }
+
+    /*  public function trouver(ClassroomRepository $c, int $id): Response
+    {
+        return $this->render('student/getstudent.html.twig', [
+            'idc' => $c->findOneBy($id),
+        ]);
+    }*/
 }

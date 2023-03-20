@@ -1,0 +1,11 @@
+{% for i in students %}
+
+{{i.nsc}}
+{{i.email}}
+
+<a href="{{path('supprimer_student',{'nsc':i.nsc})}}">remove </a>
+<a href="{{path('modifier_student',{'nsc':i.nsc})}}">modifier </a>
+<br>
+
+{% endfor %}
+<a href="{{path('ajouter_student')}}">add article </a>
