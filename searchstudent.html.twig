@@ -1,5 +1,4 @@
 <h1> Liste des etudiants </h1>
-{#<h1> {{classe}} </h1>#}
 <a href="{{path('trier_students')}}">trier </a> 
 <a href="{{path('ajouter_student')}}" >add article </a>
 <br>
@@ -10,7 +9,7 @@
 <a href="{{path('find_student')}}" > chercher</a>
 #} 
 
-
+{{form(searchform)}}
 
 <br><br>
 <table border="1">
@@ -18,7 +17,6 @@
  <td> NSC </td>
  <td> Email </td>
  <td> Classe </td>
-  <td> Creation_date </td>
   <td> Action </td>
 </tr>
  
@@ -27,7 +25,6 @@
  <td>{{i.nsc}} </td>
  <td>{{i.email}} </td>
  <td>{{i.classe.name}} </td>
-  <td>{{i.creation_date| date('M,d,Y H:i')}} </td>
  <td>
 <a href="{{path('supprimer_student',{'nsc':i.nsc})}}">remove </a>
 <a href="{{path('modifier_student',{'nsc':i.nsc})}}">modifier </a>

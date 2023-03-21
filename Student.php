@@ -21,6 +21,9 @@ class Student
     #[ORM\JoinColumn(name: "classe_Id", referencedColumnName: "id")]
     private ?Classroom $classe = null;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $creation_date = null;
+
     public function getnsc(): ?int
     {
         return $this->nsc;
@@ -46,6 +49,18 @@ class Student
     public function setClasse(?Classroom $classe): self
     {
         $this->classe = $classe;
+
+        return $this;
+    }
+
+    public function getCreation_date(): ?\DateTimeImmutable
+    {
+        return $this->creation_date;
+    }
+
+    public function setCreation_date(\DateTimeImmutable $createdAt): self
+    {
+        $this->creation_date = $createdAt;
 
         return $this;
     }
